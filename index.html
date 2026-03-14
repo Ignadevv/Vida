@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ignacio · Recordatorios IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#09090f;
+  --bg2:#0d0d18;
+  --bg3:#111120;
+  --bg4:#161628;
+  --border:#1e1e35;
+  --border2:#2a2a45;
+  --purple:#8b5cf6;
+  --purple2:#a78bfa;
+  --purple-dim:#1e1040;
+  --cyan:#22d3ee;
+  --cyan-dim:#0a2030;
+  --text:#e2e2f0;
+  --text2:#9090b0;
+  --text3:#4a4a6a;
+  --green:#4ade80;
+  --red:#f87171;
+  --amber:#fbbf24;
+  --font:'Syne',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ─── SCREENS ─── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+#login-screen{
+  align-items:center;justify-content:center;
+  background:var(--bg);
+  position:relative;overflow:hidden;
+}
+
+.login-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(139,92,246,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(34,211,238,0.05) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.grid-bg{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size:40px 40px;
+  opacity:0.3;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
+}
+
+.login-card{
+  position:relative;z-index:1;
+  width:100%;max-width:420px;
+  padding:40px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  animation:fadeUp .5s ease both;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.login-logo{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:32px;
+}
+
+.hex-icon{
+  width:44px;height:44px;
+  background:var(--purple-dim);
+  border:1.5px solid var(--purple);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;color:var(--purple2);font-weight:500;
+}
+
+.login-brand .name{font-size:15px;font-weight:700;color:var(--text);letter-spacing:2px}
+.login-brand .sub{font-size:10px;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-top:1px}
+
+.login-title{font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px}
+.login-sub{font-size:13px;color:var(--text3);margin-bottom:28px;line-height:1.5}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;font-weight:500}
+
+.field input{
+  width:100%;padding:12px 16px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-family:var(--font);font-size:14px;
+  transition:border-color .2s,box-shadow .2s;
+  outline:none;
+}
+.field input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.field input::placeholder{color:var(--text3)}
+
+.btn-login{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,#7c3aed,#6d28d9);
+  color:#fff;
+  border:none;border-radius:10px;
+  font-family:var(--font);font-size:14px;font-weight:600;
+  cursor:pointer;letter-spacing:.5px;
+  margin-top:8px;
+  transition:opacity .2s,transform .1s;
+  position:relative;overflow:hidden;
+}
+.btn-login:hover{opacity:.9}
+.btn-login:active{transform:scale(.98)}
+.btn-login::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);
+}
+
+.login-register{
+  text-align:center;margin-top:20px;
+  font-size:12px;color:var(--text3);
+}
+.login-register a{color:var(--cyan);cursor:pointer;text-decoration:none}
+.login-register a:hover{text-decoration:underline}
+
+.login-error{
+  background:rgba(248,113,113,.1);
+  border:1px solid rgba(248,113,113,.3);
+  border-radius:8px;padding:10px 14px;
+  font-size:12px;color:var(--red);
+  margin-bottom:16px;display:none;
+}
+
+/* REGISTER panel */
+.register-panel{display:none}
+.register-panel.active{display:block}
+.login-panel.hidden{display:none}
+
+/* ══════════════════════════════════════
+   MAIN APP
+══════════════════════════════════════ */
+#app-screen{flex-direction:row}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:20px 14px;
+  min-height:100vh;
+  transition:transform .3s;
+  position:relative;z-index:100;
+}
+
+.sb-logo{
+  display:flex;align-items:center;gap:10px;
+  padding-bottom:20px;margin-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+.sb-brand .name{font-size:13px;font-weight:700;color:var(--text);letter-spacing:2px}
+.sb-brand .sub{font-size:9px;color:var(--cyan);letter-spacing:2.5px;text-transform:uppercase}
+
+.sb-section{margin:16px 0 6px;font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:0 8px;font-weight:500}
+
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:9px;
+  font-size:13px;color:var(--text3);
+  cursor:pointer;margin-bottom:2px;
+  transition:all .15s;
+  border:1px solid transparent;
+  position:relative;
+}
+.sb-item:hover{color:var(--text2);background:var(--bg3)}
+.sb-item.active{
+  color:var(--text);
+  background:linear-gradient(135deg,var(--purple-dim),var(--cyan-dim));
+  border-color:var(--border2);
+}
+
+.sb-icon{font-size:14px;width:20px;text-align:center}
+.sb-badge{
+  margin-left:auto;
+  font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:10px;
+  background:var(--purple);color:#fff;
+}
+.sb-badge.c{background:var(--cyan);color:#000}
+
+.sb-bottom{margin-top:auto;padding-top:20px;border-top:1px solid var(--border)}
+.user-chip{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:9px;
+  cursor:pointer;
+}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#7c3aed,#22d3ee);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.user-name{font-size:13px;color:var(--text2);font-weight:500}
+.user-email{font-size:10px;color:var(--text3);margin-top:1px}
+
+.logout-btn{
+  width:100%;margin-top:8px;padding:8px;
+  background:transparent;border:1px solid var(--border);
+  border-radius:9px;color:var(--text3);
+  font-family:var(--font);font-size:12px;cursor:pointer;
+  transition:all .15s;
+}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* ─── MAIN CONTENT ─── */
+.main-content{
+  flex:1;overflow-y:auto;
+  padding:24px;
+  background:var(--bg);
+}
+
+/* ─── HEADER ─── */
+.page-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:24px;
+}
+.page-title{font-size:22px;font-weight:700;color:var(--text)}
+.page-date{font-size:12px;color:var(--text3);margin-top:4px}
+
+.notif-bell{
+  position:relative;width:38px;height:38px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;transition:border-color .15s;
+  flex-shrink:0;
+}
+.notif-bell:hover{border-color:var(--border2)}
+.bell-dot{
+  position:absolute;top:6px;right:6px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--purple);box-shadow:0 0 6px var(--purple);
+  border:2px solid var(--bg2);
+}
+
+/* ─── STATS ─── */
+.stats-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  margin-bottom:22px;
+}
+.stat-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;
+  transition:border-color .15s;
+}
+.stat-card:hover{border-color:var(--border2)}
+.stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-weight:500}
+.stat-val{font-size:26px;font-weight:700;line-height:1}
+.stat-val.purple{color:var(--purple2)}
+.stat-val.cyan{color:var(--cyan)}
+.stat-val.green{color:var(--green)}
+.stat-note{font-size:10px;color:var(--text3);margin-top:4px}
+
+/* ─── INPUT PANEL ─── */
+.input-panel{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:20px;margin-bottom:22px;
+  position:relative;overflow:hidden;
+}
+.input-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--purple),var(--cyan));
+}
+
+.input-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.input-label-text{font-size:11px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+
+.ante-toggle{
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;color:var(--text3);
+}
+.ante-select{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:6px;padding:4px 8px;
+  color:var(--text2);font-family:var(--font);font-size:11px;
+  cursor:pointer;outline:none;
+}
+
+.msg-textarea{
+  width:100%;min-height:80px;padding:14px;
+  background:var(--bg);
+  border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-family:var(--font);font-size:14px;
+  resize:none;outline:none;line-height:1.6;
+  transition:border-color .2s,box-shadow .2s;
+  margin-bottom:12px;
+}
+.msg-textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(139,92,246,.1)}
+.msg-textarea::placeholder{color:var(--text3)}
+
+/* detected chips */
+.detect-area{
+  min-height:32px;display:flex;flex-wrap:wrap;gap:6px;
+  margin-bottom:14px;align-items:center;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;padding:5px 10px;border-radius:20px;font-weight:500;
+  animation:chipIn .2s ease both;
+}
+@keyframes chipIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.chip-ai{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)}
+.chip-time{background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(34,211,238,.2)}
+.chip-action{background:var(--purple-dim);color:var(--purple2);border:1px solid rgba(139,92,246,.2)}
+.chip-alert{background:rgba(251,191,36,.07);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.chip-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+.btn-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+.btn-primary{
+  padding:10px 20px;
+  background:linear-gradient(135deg,#7c3aed,#6d28d9);
+  color:#fff;border:none;border-radius:9px;
+  font-family:var(--font);font-size:13px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:7px;
+  transition:opacity .2s,transform .1s;
+  position:relative;overflow:hidden;
+}
+.btn-primary:hover{opacity:.9}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+
+.btn-secondary{
+  padding:10px 14px;
+  background:transparent;color:var(--text3);
+  border:1px solid var(--border);border-radius:9px;
+  font-family:var(--font);font-size:12px;cursor:pointer;
+  transition:all .15s;
+}
+.btn-secondary:hover{border-color:var(--border2);color:var(--text2)}
+
+.ai-status{
+  margin-left:auto;font-size:11px;color:var(--text3);
+  display:flex;align-items:center;gap:6px;
+}
+.ai-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* loading shimmer */
+.analyzing{
+  font-size:11px;color:var(--purple2);
+  display:none;align-items:center;gap:6px;
+}
+.analyzing.show{display:flex}
+.spin{
+  width:12px;height:12px;border:2px solid var(--purple-dim);
+  border-top-color:var(--purple2);border-radius:50%;
+  animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── REMINDER LIST ─── */
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;font-weight:500}
+.filter-btns{display:flex;gap:4px}
+.filter-btn{
+  padding:5px 10px;border-radius:7px;font-size:11px;
+  background:transparent;color:var(--text3);
+  border:1px solid var(--border);cursor:pointer;
+  font-family:var(--font);transition:all .15s;
+}
+.filter-btn.active,.filter-btn:hover{
+  background:var(--purple-dim);color:var(--purple2);
+  border-color:rgba(139,92,246,.3);
+}
+
+.reminder-list{display:flex;flex-direction:column;gap:8px}
+
+.reminder-item{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  transition:all .15s;animation:itemIn .3s ease both;
+  border-left:3px solid var(--border);
+}
+@keyframes itemIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.reminder-item:hover{border-color:var(--border2);background:var(--bg3)}
+.reminder-item.urgent{border-left-color:var(--purple)}
+.reminder-item.soon{border-left-color:var(--cyan)}
+.reminder-item.done{border-left-color:var(--green);opacity:.6}
+.reminder-item.overdue{border-left-color:var(--red);opacity:.8}
+
+.r-emoji{font-size:20px;flex-shrink:0;width:36px;text-align:center}
+.r-info{flex:1;min-width:0}
+.r-title{font-size:14px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-meta{font-size:11px;color:var(--text3);margin-top:3px}
+.r-original{font-size:11px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic}
+
+.r-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.r-time-val{font-size:12px;font-weight:600;font-family:var(--mono)}
+.r-time-val.purple{color:var(--purple2)}
+.r-time-val.cyan{color:var(--cyan)}
+.r-time-val.green{color:var(--green)}
+.r-time-val.red{color:var(--red)}
+.r-time-val.gray{color:var(--text3)}
+.r-time-label{font-size:10px;color:var(--text3)}
+
+.r-actions{display:flex;gap:5px;margin-left:8px}
+.r-btn{
+  width:28px;height:28px;border-radius:7px;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:12px;transition:all .15s;color:var(--text3);
+}
+.r-btn:hover{border-color:var(--border2);color:var(--text)}
+.r-btn.del:hover{border-color:rgba(248,113,113,.4);color:var(--red);background:rgba(248,113,113,.05)}
+.r-btn.done-btn:hover{border-color:rgba(74,222,128,.4);color:var(--green);background:rgba(74,222,128,.05)}
+
+.empty-state{
+  text-align:center;padding:48px 20px;
+  color:var(--text3);font-size:13px;
+}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.3}
+.empty-title{font-size:15px;color:var(--text2);margin-bottom:6px;font-weight:500}
+
+/* ─── TOAST NOTIFICATIONS ─── */
+#toast-container{
+  position:fixed;top:20px;right:20px;z-index:9999;
+  display:flex;flex-direction:column;gap:8px;
+  pointer-events:none;
+}
+.toast{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--purple);border-radius:12px;
+  padding:12px 16px;min-width:260px;max-width:320px;
+  animation:toastIn .3s ease both;pointer-events:all;
+  position:relative;overflow:hidden;
+}
+.toast.success{border-left-color:var(--green)}
+.toast.error{border-left-color:var(--red)}
+.toast.warning{border-left-color:var(--amber)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+.toast-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.toast-msg{font-size:11px;color:var(--text3);line-height:1.4}
+.toast-progress{
+  position:absolute;bottom:0;left:0;height:2px;
+  background:var(--purple);animation:progress 4s linear forwards;
+}
+.toast.success .toast-progress{background:var(--green)}
+.toast.warning .toast-progress{background:var(--amber)}
+@keyframes progress{from{width:100%}to{width:0}}
+
+/* ─── EDIT MODAL ─── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:1000;display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:18px;padding:28px;width:100%;max-width:480px;
+  margin:16px;animation:fadeUp .25s ease both;
+}
+.modal-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:20px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.modal-field input,.modal-field textarea{
+  width:100%;padding:10px 14px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:9px;color:var(--text);font-family:var(--font);font-size:13px;
+  outline:none;transition:border-color .2s;
+}
+.modal-field input:focus,.modal-field textarea:focus{border-color:var(--purple)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+
+/* ─── MOBILE ─── */
+.hamburger{
+  display:none;position:fixed;top:14px;left:14px;z-index:200;
+  width:38px;height:38px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:9px;cursor:pointer;font-size:16px;
+  align-items:center;justify-content:center;
+}
+
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{
+    position:fixed;top:0;left:0;height:100vh;z-index:150;
+    transform:translateX(-100%);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main-content{padding:16px;padding-top:64px}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+  .page-title{font-size:18px}
+  .filter-btns{display:none}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .btn-row{flex-direction:column;align-items:stretch}
+  .btn-primary,.btn-secondary{width:100%;justify-content:center}
+}
+
+/* ─── SIDEBAR OVERLAY ─── */
+.sb-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:140;
+}
+.sb-overlay.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- HAMBURGER -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()" style="display:none">☰</button>
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ══════════════════ LOGIN SCREEN ══════════════════ -->
+<div class="screen active" id="login-screen">
+  <div class="login-bg"></div>
+  <div class="grid-bg"></div>
+
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="hex-icon">&lt;/&gt;</div>
+      <div class="login-brand">
+        <div class="name">IGNACIO</div>
+        <div class="sub">Dev Fullstack · Freelancer</div>
+      </div>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div id="login-panel" class="login-panel">
+      <h1 class="login-title">Bienvenido de vuelta</h1>
+      <p class="login-sub">Inicia sesión para acceder a tus recordatorios inteligentes.</p>
+
+      <div class="login-error" id="login-error"></div>
+
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-login" onclick="doLogin()">Ingresar →</button>
+
+      <div class="login-register">
+        ¿No tienes cuenta? <a onclick="showRegister()">Crear cuenta</a>
+      </div>
+    </div>
+
+    <!-- REGISTER PANEL -->
+    <div id="register-panel" class="register-panel">
+      <h1 class="login-title">Crear cuenta</h1>
+      <p class="login-sub">Registra tu acceso al asistente de recordatorios.</p>
+
+      <div class="login-error" id="register-error"></div>
+
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" id="reg-name" placeholder="Tu nombre">
+      </div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="reg-email" placeholder="tu@email.com">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres">
+      </div>
+      <button class="btn-login" onclick="doRegister()">Crear cuenta →</button>
+
+      <div class="login-register">
+        ¿Ya tienes cuenta? <a onclick="showLogin()">Iniciar sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ APP SCREEN ══════════════════ -->
+<div class="screen" id="app-screen">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="hex-icon" style="width:36px;height:36px;font-size:11px">&lt;/&gt;</div>
+      <div class="sb-brand">
+        <div class="name">IGNACIO</div>
+        <div class="sub">Recordatorios IA</div>
+      </div>
+    </div>
+
+    <div class="sb-section">Principal</div>
+    <div class="sb-item active" onclick="setView('dashboard')">
+      <span class="sb-icon">◈</span> Dashboard
+      <span class="sb-badge" id="sb-today-badge">0</span>
+    </div>
+    <div class="sb-item" onclick="setView('all')">
+      <span class="sb-icon">◉</span> Todos
+      <span class="sb-badge c" id="sb-all-badge">0</span>
+    </div>
+    <div class="sb-item" onclick="setView('done')">
+      <span class="sb-icon">◎</span> Completados
+    </div>
+
+    <div class="sb-section">Cuenta</div>
+    <div class="sb-item" onclick="showToast('Próximamente','Esta función estará disponible pronto.','warning')">
+      <span class="sb-icon">⊙</span> Configuración
+    </div>
+
+    <div class="sb-bottom">
+      <div class="user-chip">
+        <div class="user-avatar" id="sb-avatar">IG</div>
+        <div>
+          <div class="user-name" id="sb-name">Ignacio</div>
+          <div class="user-email" id="sb-email">—</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="page-greeting">Buenos días, Ignacio</div>
+        <div class="page-date" id="page-date"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="notif-bell" onclick="checkAlerts()">
+          🔔 <div class="bell-dot" id="bell-dot" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Hoy</div>
+        <div class="stat-val cyan" id="stat-today">0</div>
+        <div class="stat-note">activos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total</div>
+        <div class="stat-val purple" id="stat-total">0</div>
+        <div class="stat-note">programados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hechos</div>
+        <div class="stat-val green" id="stat-done">0</div>
+        <div class="stat-note">completados</div>
+      </div>
+    </div>
+
+    <!-- Input Panel -->
+    <div class="input-panel">
+      <div class="input-header">
+        <span class="input-label-text">✦ Asistente IA</span>
+        <div class="ante-toggle">
+          Avisar
+          <select class="ante-select" id="ante-select">
+            <option value="15">15 min antes</option>
+            <option value="30" selected>30 min antes</option>
+            <option value="60">1 hora antes</option>
+            <option value="120">2 horas antes</option>
+            <option value="1440">1 día antes</option>
+          </select>
+        </div>
+      </div>
+
+      <textarea
+        class="msg-textarea"
+        id="msg-input"
+        placeholder='Pega el mensaje aquí... Ej: "Llámame el martes a las 4 pm" o "Oye limpia que iré a las 8 am"'
+        rows="3"
+        oninput="onMsgInput()"
+        onkeydown="onMsgKey(event)"
+      ></textarea>
+
+      <div class="detect-area" id="detect-area">
+        <span style="font-size:11px;color:var(--text3)">La IA detectará fecha, hora y acción automáticamente...</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="btn-create" onclick="createReminder()" disabled>
+          ✦ Crear recordatorio
+        </button>
+        <button class="btn-secondary" onclick="clearInput()">Limpiar</button>
+        <div class="analyzing" id="analyzing">
+          <div class="spin"></div> Analizando...
+        </div>
+        <div class="ai-status" id="ai-status">
+          <div class="ai-dot"></div> IA lista
+        </div>
+      </div>
+    </div>
+
+    <!-- Reminder List -->
+    <div class="section-header">
+      <div class="section-title" id="list-title">Próximos recordatorios</div>
+      <div class="filter-btns">
+        <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
+        <button class="filter-btn" onclick="setFilter('today',this)">Hoy</button>
+        <button class="filter-btn" onclick="setFilter('week',this)">Semana</button>
+      </div>
+    </div>
+
+    <div class="reminder-list" id="reminder-list"></div>
+
+  </main>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">Editar recordatorio</div>
+    <input type="hidden" id="edit-id">
+    <div class="modal-field">
+      <label>Título / Acción</label>
+      <input type="text" id="edit-title">
+    </div>
+    <div class="modal-field">
+      <label>Fecha y hora del evento</label>
+      <input type="datetime-local" id="edit-datetime">
+    </div>
+    <div class="modal-field">
+      <label>Notas adicionales</label>
+      <textarea id="edit-notes" rows="2" style="resize:none"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveEdit()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// AUTH & USERS (localStorage as file)
+// ════════════════════════════════════════
+
+const USERS_KEY = 'ignacio_users';
+const SESSION_KEY = 'ignacio_session';
+const REMINDERS_KEY = 'ignacio_reminders';
+
+function getUsers() {
+  const raw = localStorage.getItem(USERS_KEY);
+  if (!raw) {
+    // seed default user
+    const users = [{
+      id:'usr_001',
+      name:'Ignacio',
+      email:'ignacio@devfullstack.com',
+      password: hashPass('password123'),
+      createdAt: new Date().toISOString()
+    }];
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    return users;
+  }
+  return JSON.parse(raw);
+}
+
+function saveUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function hashPass(pass) {
+  // Simple but consistent hash for demo purposes
+  let h = 0;
+  for (let i = 0; i < pass.length; i++) {
+    h = (Math.imul(31, h) + pass.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h).toString(16).padStart(8,'0') + pass.length.toString(16);
+}
+
+function getSession() {
+  const raw = localStorage.getItem(SESSION_KEY);
+  return raw ? JSON.parse(raw) : null;
+}
+
+function setSession(user) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+
+  if (!email || !pass) {
+    showLoginError(errEl, 'Por favor completa todos los campos.');
+    return;
+  }
+
+  const users = getUsers();
+  const user = users.find(u => u.email.toLowerCase() === email && u.password === hashPass(pass));
+
+  if (!user) {
+    showLoginError(errEl, 'Correo o contraseña incorrectos.');
+    return;
+  }
+
+  errEl.style.display = 'none';
+  setSession(user);
+  enterApp(user);
+}
+
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass = document.getElementById('reg-pass').value;
+  const errEl = document.getElementById('register-error');
+
+  if (!name || !email || !pass) {
+    showLoginError(errEl, 'Por favor completa todos los campos.');
+    return;
+  }
+  if (pass.length < 6) {
+    showLoginError(errEl, 'La contraseña debe tener al menos 6 caracteres.');
+    return;
+  }
+
+  const users = getUsers();
+  if (users.find(u => u.email.toLowerCase() === email)) {
+    showLoginError(errEl, 'Ya existe una cuenta con ese correo.');
+    return;
+  }
+
+  const newUser = {
+    id: 'usr_' + Date.now(),
+    name,
+    email,
+    password: hashPass(pass),
+    createdAt: new Date().toISOString()
+  };
+  users.push(newUser);
+  saveUsers(users);
+
+  errEl.style.display = 'none';
+  setSession(newUser);
+  enterApp(newUser);
+}
+
+function showLoginError(el, msg) {
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function showRegister() {
+  document.getElementById('login-panel').classList.add('hidden');
+  document.getElementById('register-panel').classList.add('active');
+}
+function showLogin() {
+  document.getElementById('login-panel').classList.remove('hidden');
+  document.getElementById('register-panel').classList.remove('active');
+}
+
+function doLogout() {
+  clearSession();
+  location.reload();
+}
+
+function enterApp(user) {
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('app-screen').classList.add('active');
+  document.getElementById('hamburger').style.display = '';
+
+  // Set user info
+  const initials = user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('sb-avatar').textContent = initials;
+  document.getElementById('sb-name').textContent = user.name;
+  document.getElementById('sb-email').textContent = user.email;
+
+  // Greeting
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+  document.getElementById('page-greeting').textContent = `${greet}, ${user.name}`;
+
+  // Date
+  const opts = {weekday:'long',year:'numeric',month:'long',day:'numeric'};
+  document.getElementById('page-date').textContent = new Date().toLocaleDateString('es-PE', opts);
+
+  renderReminders();
+  updateStats();
+  checkAlertsSilent();
+
+  // Check alerts every minute
+  setInterval(checkAlertsSilent, 60000);
+}
+
+// ════════════════════════════════════════
+// REMINDERS STORAGE
+// ════════════════════════════════════════
+
+function getReminders() {
+  const raw = localStorage.getItem(REMINDERS_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+function saveReminders(list) {
+  localStorage.setItem(REMINDERS_KEY, JSON.stringify(list));
+}
+
+// ════════════════════════════════════════
+// AI PARSING — Calls Anthropic API
+// ════════════════════════════════════════
+
+let parsedData = null;
+let debounceTimer = null;
+
+function onMsgInput() {
+  const val = document.getElementById('msg-input').value.trim();
+  document.getElementById('detect-area').innerHTML = '<span style="font-size:11px;color:var(--text3)">La IA detectará fecha, hora y acción automáticamente...</span>';
+  document.getElementById('btn-create').disabled = true;
+  parsedData = null;
+
+  clearTimeout(debounceTimer);
+  if (val.length < 5) return;
+
+  debounceTimer = setTimeout(() => analyzeWithAI(val), 800);
+}
+
+function onMsgKey(e) {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    createReminder();
+  }
+}
+
+async function analyzeWithAI(text) {
+  const analyzing = document.getElementById('analyzing');
+  const aiStatus = document.getElementById('ai-status');
+  analyzing.classList.add('show');
+  aiStatus.style.display = 'none';
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('es-PE', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const dayOfWeek = today.getDay(); // 0=dom,1=lun,...
+
+  const systemPrompt = `Eres un asistente que extrae recordatorios de mensajes naturales en español.
+Hoy es ${dateStr} (día de semana: ${dayOfWeek}, donde 0=domingo).
+Hora actual: ${today.toTimeString().slice(0,5)}.
+
+Analiza el mensaje y extrae:
+1. La acción/tarea a recordar (título corto, máximo 8 palabras)
+2. La fecha y hora del evento (en formato ISO: YYYY-MM-DDTHH:MM)
+3. Un emoji representativo de la tarea
+4. Fuente del mensaje (ej: "mamá", "cliente", "propio", etc.)
+
+Si el mensaje dice "martes", calcula la próxima fecha del martes. Si dice "mañana", calcula el día siguiente. Si no hay fecha explícita, asume hoy. Si no hay hora, asume las 12:00.
+
+Responde SOLO con JSON válido, sin texto adicional ni backticks:
+{
+  "titulo": "texto de la acción",
+  "datetime": "YYYY-MM-DDTHH:MM",
+  "emoji": "emoji",
+  "fuente": "origen del mensaje",
+  "confianza": true
+}`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+
+    const data = await response.json();
+    const raw = data.content[0].text.trim();
+    const cleaned = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(cleaned);
+
+    parsedData = parsed;
+    showDetectedChips(parsed);
+    document.getElementById('btn-create').disabled = false;
+
+  } catch (e) {
+    // Fallback: basic local parsing
+    parsedData = localParse(text);
+    if (parsedData) {
+      showDetectedChips(parsedData);
+      document.getElementById('btn-create').disabled = false;
+    } else {
+      document.getElementById('detect-area').innerHTML =
+        '<span style="font-size:11px;color:var(--text3)">No se pudo detectar fecha/hora. Puedes crear el recordatorio manualmente.</span>';
+      parsedData = { titulo: text.slice(0, 60), datetime: getTodayNoon(), emoji: '📌', fuente: 'manual', confianza: false };
+      document.getElementById('btn-create').disabled = false;
+    }
+  } finally {
+    analyzing.classList.remove('show');
+    aiStatus.style.display = '';
+  }
+}
+
+function localParse(text) {
+  const t = text.toLowerCase();
+  const now = new Date();
+  let date = new Date(now);
+  let hour = 12, min = 0;
+
+  // Hour detection
+  const hourMatch = t.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|de la mañana|de la tarde|de la noche)?/);
+  if (hourMatch) {
+    hour = parseInt(hourMatch[1]);
+    min = hourMatch[2] ? parseInt(hourMatch[2]) : 0;
+    const period = hourMatch[3] || '';
+    if ((period.includes('pm') || period.includes('tarde') || period.includes('noche')) && hour < 12) hour += 12;
+    if (period.includes('am') && hour === 12) hour = 0;
+  }
+
+  // Day detection
+  const days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  for (let i = 0; i < days.length; i++) {
+    if (t.includes(days[i])) {
+      let diff = i - now.getDay();
+      if (diff <= 0) diff += 7;
+      date.setDate(now.getDate() + diff);
+      break;
+    }
+  }
+  if (t.includes('mañana')) date.setDate(now.getDate() + 1);
+
+  date.setHours(hour, min, 0, 0);
+
+  const emojis = { llamar:'📞', limpiar:'🧹', reunión:'👥', enviar:'📤', pagar:'💳', comprar:'🛒', ir:'🚗', visita:'🏠' };
+  let emoji = '📌';
+  for (const [k, v] of Object.entries(emojis)) {
+    if (t.includes(k)) { emoji = v; break; }
+  }
+
+  return {
+    titulo: text.slice(0, 60),
+    datetime: date.toISOString().slice(0,16),
+    emoji,
+    fuente: 'mensaje',
+    confianza: false
+  };
+}
+
+function getTodayNoon() {
+  const d = new Date();
+  d.setHours(12,0,0,0);
+  return d.toISOString().slice(0,16);
+}
+
+function showDetectedChips(p) {
+  const area = document.getElementById('detect-area');
+  const dt = new Date(p.datetime);
+  const dtStr = dt.toLocaleDateString('es-PE', {weekday:'short',day:'numeric',month:'short'}) + ' · ' +
+    dt.toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'});
+  const ante = parseInt(document.getElementById('ante-select').value);
+  const alertDt = new Date(dt.getTime() - ante * 60000);
+  const alertStr = alertDt.toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'});
+
+  area.innerHTML = `
+    <span class="chip chip-ai"><span class="chip-dot"></span>${p.confianza ? 'IA detectó evento' : 'Detección básica'}</span>
+    <span class="chip chip-time"><span class="chip-dot"></span>${dtStr}</span>
+    <span class="chip chip-action"><span class="chip-dot"></span>${p.titulo}</span>
+    <span class="chip chip-alert"><span class="chip-dot"></span>Alerta: ${alertStr}</span>
+  `;
+}
+
+function clearInput() {
+  document.getElementById('msg-input').value = '';
+  document.getElementById('detect-area').innerHTML = '<span style="font-size:11px;color:var(--text3)">La IA detectará fecha, hora y acción automáticamente...</span>';
+  document.getElementById('btn-create').disabled = true;
+  parsedData = null;
+}
+
+// ════════════════════════════════════════
+// CREATE / EDIT / DELETE REMINDERS
+// ════════════════════════════════════════
+
+function createReminder() {
+  if (!parsedData) return;
+
+  const ante = parseInt(document.getElementById('ante-select').value);
+  const msgText = document.getElementById('msg-input').value.trim();
+
+  const reminder = {
+    id: 'rem_' + Date.now(),
+    titulo: parsedData.titulo,
+    datetime: parsedData.datetime,
+    emoji: parsedData.emoji,
+    fuente: parsedData.fuente || 'mensaje',
+    original: msgText,
+    antesMin: ante,
+    done: false,
+    notified: false,
+    createdAt: new Date().toISOString()
+  };
+
+  const list = getReminders();
+  list.unshift(reminder);
+  saveReminders(list);
+
+  clearInput();
+  renderReminders();
+  updateStats();
+  showToast('Recordatorio creado', `${reminder.emoji} ${reminder.titulo}`, 'success');
+}
+
+function deleteReminder(id) {
+  const list = getReminders().filter(r => r.id !== id);
+  saveReminders(list);
+  renderReminders();
+  updateStats();
+  showToast('Eliminado', 'El recordatorio fue eliminado.', 'error');
+}
+
+function markDone(id) {
+  const list = getReminders();
+  const r = list.find(r => r.id === id);
+  if (r) { r.done = !r.done; }
+  saveReminders(list);
+  renderReminders();
+  updateStats();
+  showToast(r.done ? 'Completado ✓' : 'Restaurado', r.titulo, 'success');
+}
+
+function openEdit(id) {
+  const list = getReminders();
+  const r = list.find(r => r.id === id);
+  if (!r) return;
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-title').value = r.titulo;
+  document.getElementById('edit-datetime').value = r.datetime;
+  document.getElementById('edit-notes').value = r.original || '';
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function saveEdit() {
+  const id = document.getElementById('edit-id').value;
+  const list = getReminders();
+  const r = list.find(r => r.id === id);
+  if (!r) return;
+  r.titulo = document.getElementById('edit-title').value.trim() || r.titulo;
+  r.datetime = document.getElementById('edit-datetime').value;
+  r.original = document.getElementById('edit-notes').value;
+  r.notified = false;
+  saveReminders(list);
+  closeModal();
+  renderReminders();
+  showToast('Guardado', r.titulo, 'success');
+}
+
+function closeModal() {
+  document.getElementById('edit-modal').classList.remove('show');
+}
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+
+let currentFilter = 'all';
+let currentView = 'dashboard';
+
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('list-title').textContent =
+    v === 'done' ? 'Recordatorios completados' :
+    v === 'all' ? 'Todos los recordatorios' : 'Próximos recordatorios';
+  renderReminders();
+  if (window.innerWidth <= 768) toggleSidebar();
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderReminders();
+}
+
+function getStatus(r) {
+  const now = new Date();
+  const dt = new Date(r.datetime);
+  const ante = new Date(dt.getTime() - r.antesMin * 60000);
+  if (r.done) return 'done';
+  if (dt < now) return 'overdue';
+  if (ante <= now) return 'urgent';
+  const diff = dt - now;
+  if (diff < 24 * 3600 * 1000) return 'soon';
+  return 'later';
+}
+
+function renderReminders() {
+  const list = getReminders();
+  const now = new Date();
+  const container = document.getElementById('reminder-list');
+
+  let filtered = list.filter(r => {
+    if (currentView === 'done') return r.done;
+    if (currentView === 'dashboard' || currentView === 'all') {
+      if (currentView === 'dashboard' && r.done) return false;
+      if (currentFilter === 'today') {
+        const dt = new Date(r.datetime);
+        return dt.toDateString() === now.toDateString();
+      }
+      if (currentFilter === 'week') {
+        const dt = new Date(r.datetime);
+        const diff = dt - now;
+        return diff > 0 && diff < 7 * 24 * 3600 * 1000;
+      }
+      return true;
+    }
+    return true;
+  });
+
+  // Sort: overdue first, then by datetime
+  filtered.sort((a, b) => {
+    const sa = getStatus(a), sb = getStatus(b);
+    const order = { overdue:0, urgent:1, soon:2, later:3, done:4 };
+    if (order[sa] !== order[sb]) return order[sa] - order[sb];
+    return new Date(a.datetime) - new Date(b.datetime);
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">◌</div>
+        <div class="empty-title">Sin recordatorios</div>
+        <div>Escribe un mensaje arriba y la IA creará tu recordatorio automáticamente.</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map((r, i) => {
+    const status = getStatus(r);
+    const dt = new Date(r.datetime);
+    const ante = new Date(dt.getTime() - r.antesMin * 60000);
+
+    const dateStr = dt.toLocaleDateString('es-PE', {weekday:'short',day:'numeric',month:'short'});
+    const timeStr = dt.toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'});
+    const alertStr = ante.toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'});
+
+    const colorMap = { urgent:'purple', soon:'cyan', done:'green', overdue:'red', later:'gray' };
+    const color = colorMap[status] || 'gray';
+
+    const statusLabels = { urgent:'⚡ Próximo', soon:'🕐 Hoy', done:'✓ Hecho', overdue:'⚠ Pasado', later:'◷ Futuro' };
+
+    return `
+    <div class="reminder-item ${status}" style="animation-delay:${i*0.05}s">
+      <div class="r-emoji">${r.emoji}</div>
+      <div class="r-info">
+        <div class="r-title">${r.titulo}</div>
+        <div class="r-meta">${statusLabels[status]} · ${dateStr} · Alerta: ${alertStr}</div>
+        ${r.original ? `<div class="r-original">"${r.original.slice(0,80)}${r.original.length>80?'...':''}"</div>` : ''}
+      </div>
+      <div class="r-right">
+        <div class="r-time-val ${color}">${timeStr}</div>
+        <div class="r-time-label">${dateStr}</div>
+      </div>
+      <div class="r-actions">
+        <div class="r-btn done-btn" title="${r.done?'Restaurar':'Marcar hecho'}" onclick="markDone('${r.id}')">${r.done?'↩':'✓'}</div>
+        <div class="r-btn" title="Editar" onclick="openEdit('${r.id}')">✎</div>
+        <div class="r-btn del" title="Eliminar" onclick="deleteReminder('${r.id}')">✕</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  const list = getReminders();
+  const now = new Date();
+  const today = list.filter(r => {
+    const dt = new Date(r.datetime);
+    return !r.done && dt.toDateString() === now.toDateString();
+  });
+  const done = list.filter(r => r.done);
+  const active = list.filter(r => !r.done);
+
+  document.getElementById('stat-today').textContent = today.length;
+  document.getElementById('stat-total').textContent = active.length;
+  document.getElementById('stat-done').textContent = done.length;
+  document.getElementById('sb-today-badge').textContent = today.length;
+  document.getElementById('sb-all-badge').textContent = active.length;
+
+  // Bell dot
+  const urgent = list.filter(r => getStatus(r) === 'urgent').length;
+  document.getElementById('bell-dot').style.display = urgent > 0 ? '' : 'none';
+}
+
+// ════════════════════════════════════════
+// ALERT CHECKER
+// ════════════════════════════════════════
+
+function checkAlerts() {
+  const list = getReminders();
+  const now = new Date();
+  const alerts = list.filter(r => {
+    if (r.done || r.notified) return false;
+    const dt = new Date(r.datetime);
+    const ante = new Date(dt.getTime() - r.antesMin * 60000);
+    return ante <= now && dt > now;
+  });
+
+  if (alerts.length === 0) {
+    showToast('Sin alertas pendientes', 'No hay recordatorios próximos ahora.', 'warning');
+    return;
+  }
+
+  alerts.forEach(r => {
+    const dt = new Date(r.datetime);
+    const timeStr = dt.toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'});
+    showToast(`${r.emoji} Recordatorio próximo`, `${r.titulo} — ${timeStr}`, 'warning');
+  });
+}
+
+function checkAlertsSilent() {
+  const list = getReminders();
+  const now = new Date();
+  let changed = false;
+
+  list.forEach(r => {
+    if (r.done || r.notified) return;
+    const dt = new Date(r.datetime);
+    const ante = new Date(dt.getTime() - r.antesMin * 60000);
+    if (ante <= now && dt > now) {
+      r.notified = true;
+      changed = true;
+      const timeStr = dt.toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'});
+      showToast(`${r.emoji} ¡Alerta!`, `${r.titulo} — ${timeStr}`, 'warning');
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(`⏰ ${r.titulo}`, { body: `Evento a las ${timeStr}` });
+      }
+    }
+  });
+
+  if (changed) { saveReminders(list); updateStats(); }
+}
+
+// ════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════
+
+function showToast(title, msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `
+    <div class="toast-title">${title}</div>
+    <div class="toast-msg">${msg}</div>
+    <div class="toast-progress"></div>`;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(() => t.remove(), 300);
+  }, 4000);
+}
+
+// ════════════════════════════════════════
+// SIDEBAR MOBILE
+// ════════════════════════════════════════
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sb-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+
+window.addEventListener('load', () => {
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  // Check existing session
+  const session = getSession();
+  if (session) {
+    // Validate user still exists
+    const users = getUsers();
+    const user = users.find(u => u.id === session.id);
+    if (user) {
+      enterApp(user);
+      return;
+    }
+    clearSession();
+  }
+
+  // Mobile hamburger
+  if (window.innerWidth <= 768) {
+    document.getElementById('hamburger').style.display = 'flex';
+  }
+  window.addEventListener('resize', () => {
+    document.getElementById('hamburger').style.display =
+      window.innerWidth <= 768 ? 'flex' : 'none';
+  });
+});
+
+// Enter key on login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('login-screen').classList.contains('active')) {
+      if (document.getElementById('register-panel').classList.contains('active')) {
+        doRegister();
+      } else {
+        doLogin();
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
